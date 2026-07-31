@@ -10,4 +10,9 @@ class Brain:
         state: MindState,
         events: list[Event]
     ) -> tuple[MindState, list[Action]]:
-        ...
+        new_state = state.model_copy(deep=True)
+        
+        new_state.age += 1
+        new_state.energy.level -= 0.1
+        
+        return new_state, []

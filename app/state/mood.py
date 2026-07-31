@@ -9,6 +9,6 @@ class Mood(Enum):
     BORED = "bored"
 
 
-class MoodState:
+class MoodState(BaseModel):
     current: Mood
     intensity: float = Field(ge=0.0, le=1.0)

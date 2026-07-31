@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from state.mood import MoodState
-from state.energy import EnergyState
-from state.personality import PersonalityState
-from state.working_memory import WorkingMemory
-from state.goal import Goal
+from app.state.mood import MoodState
+from app.state.energy import EnergyState
+from app.state.personality import PersonalityState
+from app.state.working_memory import WorkingMemory
+from app.state.goal import Goal
 
 class MindState(BaseModel):
     age: int = 0
