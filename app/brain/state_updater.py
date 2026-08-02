@@ -8,10 +8,8 @@ class StateUpdater:
         self,
         mind_state: MindState
     ) -> None:
-        """
-        Updates internal state over time.
-        """
-        pass
+        self._update_age(mind_state)
+        self._apply_metabolism(mind_state)
     
     def _update_age(
         self,
@@ -19,7 +17,7 @@ class StateUpdater:
     ) -> None:
         mind_state.age += 1
         
-    def _update_energy(
+    def _apply_metabolism(
         self,
         mind_state: MindState
     ) -> None:
