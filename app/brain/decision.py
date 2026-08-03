@@ -1,6 +1,6 @@
 from app.state.mind_state import MindState
 from app.actions.base_action import Action
-from app.thoughts.thought import Thought
+from app.thinking.thought import Thought
 
 
 class Decision:

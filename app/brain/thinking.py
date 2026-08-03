@@ -1,12 +1,14 @@
+from app.perception.percept import Percept
 from app.state.mind_state import MindState
-from app.thoughts.thought import Thought
+from app.thinking.thought import Thought
 
 
 class Thinking:
 
     def process(
         self,
-        mind_state: MindState
+        mind_state: MindState,
+        percepts: list[Percept],
     ) -> list[Thought]:
         """
         Generates thoughts from the current state.

@@ -1,5 +1,5 @@
 from app.perception.percept import Percept
-from app.perception.types import PerceptType
+from app.perception.types import PerceptSource, PerceptType
 from app.perception.generators.base_perceptor import BasePerceptor
 
 
@@ -17,13 +17,13 @@ class GoalPerceptor(BasePerceptor):
             return [
                 Percept(
                     type=PerceptType.NO_GOAL,
-                    source="goal",
+                    source=PerceptSource.GOAL,
                 )
             ]
 
         return [
             Percept(
                 type=PerceptType.HAS_GOAL,
-                source="goal",
+                source=PerceptSource.GOAL,
             )
         ]

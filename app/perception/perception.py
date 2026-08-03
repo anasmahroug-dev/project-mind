@@ -14,7 +14,7 @@ class Perception:
 
     def __init__(self):
 
-        self.generators = [
+        self.perceptors = [
             EnergyPerceptor(),
             MoodPerceptor(),
             GoalPerceptor(),
@@ -31,9 +31,9 @@ class Perception:
 
         percepts = []
 
-        for generator in self.generators:
+        for perceptor in self.perceptors:
             percepts.extend(
-                generator.generate(
+                perceptor.generate(
                     mind_state,
                     events,
                 )

@@ -32,15 +32,27 @@ class Engine:
         events = self.event_queue
         self.event_queue = []
 
-        new_state, actions = self.brain.step(
-            self.state,
-            events,
-        )
+        new_state, actions, percepts, thoughts = self.brain.step( self.state,
+        self.event_queue,)
 
         self.state = new_state
+        print(f"\n========== Tick {self.tick_count} ==========")
+
+        for percept in percepts:
+            print(
+            f"[PERCEPT] {percept.type.value} "
+            f"({percept.intensity:.2f}) "
+             f"from {percept.source.value}"
+        )
+
+        for thought in thoughts:
+            print(
+        f"[THOUGHT] {thought.type.value} "
+        f"({thought.priority:.2f})"
+        )
+
         print(
-        f"Tick {self.tick_count} | "
         f"Age: {self.state.age} | "
         f"Energy: {self.state.energy.level:.2f}"
-        )
+        )  
         self.tick_count += 1
