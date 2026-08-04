@@ -1,3 +1,4 @@
+from app.goal_manager.goal_manager import GoalManager
 from app.state.mind_state import MindState
 from app.events.base_event import Event
 from app.actions.base_action import Action
@@ -20,6 +21,8 @@ class Brain:
 
         self.attention = Attention()
         
+        self.goal_manager = GoalManager()
+        
         self.decision = Decision()
         
     def step(
@@ -39,6 +42,9 @@ class Brain:
         
         focused_thought = self.attention.focus(thoughts, new_state)
         
+        goal = self.goal_manager.process(focused_thought, new_state)
+        
+        state.current_goal = goal
                 
 
-        return new_state, percepts, thoughts, focused_thought
+        return new_state, percepts, thoughts, focused_thought, goal

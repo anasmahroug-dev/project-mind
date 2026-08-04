@@ -3,6 +3,8 @@ from app.state.mind_state import MindState
 from app.events.base_event import Event
 from app.defaults.initial_state import create_initial_mind_state
 import time
+
+from app.thinking.generators import goal
 class Engine:
 
     def __init__(self):
@@ -32,7 +34,7 @@ class Engine:
         events = self.event_queue
         self.event_queue = []
 
-        new_state, percepts, thoughts, focused_thought = self.brain.step( self.state,
+        new_state, percepts, thoughts, focused_thought, goal = self.brain.step( self.state,
         self.event_queue,)
 
         self.state = new_state
@@ -55,6 +57,11 @@ class Engine:
             print(
             f"[FOCUS] {focused_thought.type.value} "
             f"({focused_thought.priority:.2f})"
+            )
+            
+        if goal is not None:
+            print(
+            f"[GOAL] {goal.type.value}"
             )
             
         print(
