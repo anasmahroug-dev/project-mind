@@ -32,7 +32,7 @@ class Engine:
         events = self.event_queue
         self.event_queue = []
 
-        new_state, actions, percepts, thoughts = self.brain.step( self.state,
+        new_state, percepts, thoughts, focused_thought = self.brain.step( self.state,
         self.event_queue,)
 
         self.state = new_state
@@ -51,6 +51,12 @@ class Engine:
         f"({thought.priority:.2f})"
         )
 
+        if focused_thought is not None:
+            print(
+            f"[FOCUS] {focused_thought.type.value} "
+            f"({focused_thought.priority:.2f})"
+            )
+            
         print(
         f"Age: {self.state.age} | "
         f"Energy: {self.state.energy.level:.2f}"
