@@ -1,3 +1,4 @@
+from app.actions import action
 from app.brain.brain import Brain
 from app.state.mind_state import MindState
 from app.events.base_event import Event
@@ -34,7 +35,7 @@ class Engine:
         events = self.event_queue
         self.event_queue = []
 
-        new_state, percepts, thoughts, focused_thought, goal = self.brain.step( self.state,
+        new_state, percepts, thoughts, focused_thought, goal, action = self.brain.step( self.state,
         self.event_queue,)
 
         self.state = new_state
@@ -63,7 +64,10 @@ class Engine:
             print(
             f"[GOAL] {goal.type.value}"
             )
-            
+        
+        if action is not None:
+            print(f"[ACTION] {action.type.value}")
+        
         print(
         f"Age: {self.state.age} | "
         f"Energy: {self.state.energy.level:.2f}"

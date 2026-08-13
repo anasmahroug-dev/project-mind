@@ -1,5 +1,5 @@
 from app.state.mind_state import MindState
-from app.actions.base_action import Action
+from app.actions.action import Action
 from app.thinking.thought import Thought
 
 

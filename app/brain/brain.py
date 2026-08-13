@@ -1,7 +1,8 @@
 from app.goal_manager.goal_manager import GoalManager
 from app.state.mind_state import MindState
 from app.events.base_event import Event
-from app.actions.base_action import Action
+from app.actions.action_manager import ActionManager
+from app.actions.action import Action
 from app.perception.perception import Perception
 from app.brain.state_updater import StateUpdater
 from app.thinking.thinking import Thinking
@@ -25,6 +26,8 @@ class Brain:
         
         self.decision = Decision()
         
+        self.action_manager = ActionManager()
+        
     def step(
         self,
         state: MindState,
@@ -44,7 +47,9 @@ class Brain:
         
         goal = self.goal_manager.process(focused_thought, new_state)
         
-        state.current_goal = goal
+        new_state.current_goal = goal
+        
+        action = self.action_manager.process(goal, new_state)
                 
 
-        return new_state, percepts, thoughts, focused_thought, goal
+        return new_state, percepts, thoughts, focused_thought, goal, action
