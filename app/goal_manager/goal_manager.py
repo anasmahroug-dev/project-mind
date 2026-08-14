@@ -3,6 +3,7 @@ from app.state.mind_state import MindState
 from app.thinking.thought import Thought
 
 from app.goal_manager.mappers.curiosity import CuriosityGoalMapper
+from app.goal_manager.mappers.happiness import HappinessGoalMapper
 
 
 class GoalManager:
@@ -11,6 +12,7 @@ class GoalManager:
 
         self.mappers = [
             CuriosityGoalMapper(),
+            HappinessGoalMapper(),
         ]
 
     def process(

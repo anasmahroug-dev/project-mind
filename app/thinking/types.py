@@ -5,6 +5,8 @@ class ThoughtType(str, Enum):
     REST = "rest"
 
     WONDER = "wonder"
+    
+    ENJOY = "enjoy"
 
     RECALL_MEMORY = "recall_memory"
 
