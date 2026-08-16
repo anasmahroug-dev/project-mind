@@ -6,3 +6,5 @@ class ActionType(Enum):
     TALK_TO_USER = "talk_to_user"
     DANCE = "dance"
     PLAY_GAME = "play_game"
+    SLEEP = "sleep"
+    EAT = "eat"
