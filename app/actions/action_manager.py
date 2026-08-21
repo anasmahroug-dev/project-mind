@@ -195,7 +195,7 @@ class ActionManager:
     ) -> None:
         
         if mind_state.mood.current == Mood.HAPPY:
-            increase = 0.2
+            increase = 0.05
 
             mind_state.mood.intensity = min(
                 1.0,
@@ -208,7 +208,7 @@ class ActionManager:
     ) -> None:
         
         if mind_state.mood.current == Mood.HAPPY:
-            increase = 0.3
+            increase = 0.05
 
             mind_state.mood.intensity = min(
                 1.0,

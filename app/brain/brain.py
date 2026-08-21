@@ -8,6 +8,7 @@ from app.brain.state_updater import StateUpdater
 from app.thinking.thinking import Thinking
 from app.brain.decision import Decision
 from app.attention.attention import Attention
+from app.mood.mood_manager import MoodManager
 
 
 
@@ -28,6 +29,8 @@ class Brain:
         
         self.action_manager = ActionManager()
         
+        self.mood_manager = MoodManager()
+        
     def step(
         self,
         state: MindState,
@@ -38,6 +41,8 @@ class Brain:
         
         
         self.state_updater.process(new_state)
+        
+        self.mood_manager.process(new_state)
         
         percepts = self.perception.process(new_state, events)
         
