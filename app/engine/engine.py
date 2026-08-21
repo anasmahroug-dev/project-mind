@@ -66,8 +66,10 @@ class Engine:
             )
         
         if action is not None:
-            print(f"[ACTION] {action.type.value}")
-        
+            print(
+        f"[ACTION] {action.type.value} "
+        f"(duration={action.duration}, remaining={action.remaining_ticks})"
+    )
         print(
         f"Age: {self.state.age} | "
         f"Energy: {self.state.energy.level:.2f}"

@@ -120,7 +120,9 @@ class ActionManager:
                 ActionType.EAT,
                 ActionType.TALK_TO_USER,
             ])
-            
+        
+        if action_type == ActionType.SLEEP:
+            return self._create_sleep_action(mind_state)
         action = Action(type=action_type)
         self._apply_action_effect(action, mind_state)       
 
@@ -239,7 +241,35 @@ class ActionManager:
             100.0,
             mind_state.energy.level + recovery,
         )
+        
+    def _create_sleep_action(self, mind_state: MindState) -> Action:
+        
+        duration = random.randint(3, 8)
+        
+        return Action(type=ActionType.SLEEP, duration=duration, remaining_ticks=duration)
     
+    def process_current_action(self,
+                               mind_state: MindState,
+                               ) -> Action:
+        action = mind_state.current_action
+        if action.type == ActionType.SLEEP:
+            self._apply_sleep_tick(mind_state)
+            
+        action.remaining_ticks -= 1
+        if action.is_finished:
+            mind_state.current_action = None
+        
+        return action
+    
+    def _apply_sleep_tick(
+        self, mind_state: MindState, 
+    ) -> None:
+        recovery = 5.0
+        
+        mind_state.energy.level = min(100.0,                                      
+                                     mind_state.energy.level + recovery
+                                     )
+        
     def _apply_eat_effect(
         self,
         mind_state: MindState,

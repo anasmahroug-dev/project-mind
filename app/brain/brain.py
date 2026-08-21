@@ -50,11 +50,16 @@ class Brain:
         
         focused_thought = self.attention.focus(thoughts, new_state)
         
-        goal = self.goal_manager.process(focused_thought, new_state)
-        
-        new_state.current_goal = goal
-        
-        action = self.action_manager.process(goal, new_state)
-                
+ 
+        if new_state.current_action is not None:
+            goal = new_state.current_goal
+            action = self.action_manager.process_current_action(new_state)        
 
+        else:
+            goal = self.goal_manager.process(focused_thought, new_state)  
+            new_state.current_goal = goal
+            
+            action = self.action_manager.process(goal, new_state)   
+            new_state.current_action = action
+       
         return new_state, percepts, thoughts, focused_thought, goal, action

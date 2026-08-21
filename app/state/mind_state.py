@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from app.actions.action import Action
 from app.state.mood import MoodState
 from app.state.energy import EnergyState
 from app.state.personality import PersonalityState
@@ -12,3 +13,4 @@ class MindState(BaseModel):
     personality: PersonalityState
     working_memory: WorkingMemory
     current_goal: Goal | None = None
+    current_action: Action | None = None
