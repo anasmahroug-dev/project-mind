@@ -41,25 +41,40 @@ class Brain:
         
         
         self.state_updater.process(new_state)
-        
         self.mood_manager.process(new_state)
         
-        percepts = self.perception.process(new_state, events)
-        
+        percepts = self.perception.process(new_state, events) 
         thoughts = self.thinking.process(new_state, percepts)
-        
         focused_thought = self.attention.focus(thoughts, new_state)
         
+        goal = new_state.current_goal
+        action = None
  
         if new_state.current_action is not None:
-            goal = new_state.current_goal
-            action = self.action_manager.process_current_action(new_state)        
-
-        else:
-            goal = self.goal_manager.process(focused_thought, new_state)  
-            new_state.current_goal = goal
             
-            action = self.action_manager.process(goal, new_state)   
-            new_state.current_action = action
-       
+            if self.action_manager.should_interrupt(
+                new_state.current_action,
+                events,):
+                self.action_manager.interrupt_current_action(new_state)
+                
+            else:
+                action = self.action_manager.process_current_action(new_state)
+                
+                return (
+                    new_state,
+                    percepts,
+                    thoughts,
+                    focused_thought,
+                    goal,
+                    action
+                )
+                
+        goal = self.goal_manager.process(focused_thought,
+                                         new_state)
+        new_state.current_goal = goal
+      
+        action = self.action_manager.process(goal, new_state)
+        
+        new_state.current_action = action
+
         return new_state, percepts, thoughts, focused_thought, goal, action

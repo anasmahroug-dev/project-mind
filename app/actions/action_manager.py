@@ -2,10 +2,12 @@ import random
 
 from app.actions.action import Action
 from app.actions.types import ActionType
-from app.state import mind_state
+from app.events.base_event import Event
+from app.events.event_types import EventType
 from app.state.goal import Goal, GoalType
 from app.state.mind_state import MindState
 from app.state.mood import Mood
+
 
 WEAK_LOW_ENERGY_THRESHOLD = 40.0
 LOW_ENERGY_THRESHOLD = 30.0
@@ -17,6 +19,14 @@ ACTION_ENERGY_COSTS = {
     ActionType.TALK_TO_USER: 0.5,
     ActionType.DANCE: 5,
     ActionType.PLAY_GAME: 3,
+}
+
+INTERRUPTIBLE_ACTIONS = {
+    ActionType.SLEEP: True,
+    ActionType.READ: True,
+    ActionType.DANCE: True,
+    ActionType.PLAY_GAME: True,
+    ActionType.TALK_TO_USER: False,
 }
 
 class ActionManager:
@@ -77,6 +87,27 @@ class ActionManager:
         
         return None
     
+    
+    def is_interruptible(self, action: Action) -> bool:
+        return INTERRUPTIBLE_ACTIONS.get(action.type, True)
+    
+    def interrupt_current_action(self, mind_state: MindState) -> None:
+        mind_state.current_action = None
+        
+    def should_interrupt(self, 
+                         action: Action,
+                         events: list[Event],) -> bool:
+        if not self.is_interruptible(action):
+            return False
+        
+        if not events:
+            return False
+        
+        return any(
+            event.type == EventType.USER_MESSAGE
+            for event in events
+        )
+        
     
     def _should_override_for_energy(
         self,
