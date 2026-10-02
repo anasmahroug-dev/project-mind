@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 class Mood(Enum):
     HAPPY = "happy"
@@ -8,7 +8,12 @@ class Mood(Enum):
     STRESSED = "stressed"
     BORED = "bored"
 
-
 class MoodState(BaseModel):
-    current: Mood
-    intensity: float = Field(ge=0.0, le=1.0)
+    levels: dict[Mood, float]
+    
+    @property
+    def dominant(self) -> Mood:
+        return max(self.levels, key=self.levels.get)
+    
+    def shift(self, mood:Mood, delta: float) -> None:
+        self.levels[mood] = max(0.0, min(1.0, self.levels[mood] + delta))

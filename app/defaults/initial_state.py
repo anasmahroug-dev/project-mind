@@ -8,8 +8,14 @@ def create_initial_mind_state() -> MindState:
     return MindState(
         age=0,
         mood=MoodState(
-            current=Mood.CURIOUS,
-            intensity=0.5,
+            levels={
+                Mood.HAPPY: 0.0,
+                Mood.CURIOUS: 0.5,
+                Mood.SAD: 0.0,
+                Mood.STRESSED: 0.0,
+                Mood.BORED: 0.0,
+            }
+            
         ),
         energy=EnergyState(
             level=100.0,

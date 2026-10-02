@@ -1,32 +1,22 @@
 
 from app.state.mind_state import MindState
 from app.state.mood import Mood
-from random import choice
 
-MOOD_DECAY = {
-    Mood.HAPPY: 0.05,
+MOOD_BASE = {
+    Mood.HAPPY: 0.5,
+    Mood.CURIOUS: 0.6,
+    Mood.SAD: 0.2,
+    Mood.STRESSED: 0.3,
+    Mood.BORED: 0.4,
 }
+
+RETURN_TO_BASE_SPEED = 0.05
 
 class MoodManager:
 
     def process(self, mind_state: MindState) -> None:
         
-        mood = mind_state.mood
-        
-        decay = MOOD_DECAY.get(mood.current, 0.0)
-        
-        mood.intensity = max(0.0,
-                             mood.intensity - decay)
-        
-        if mood.intensity == 0.0:
-            self._transition(mind_state)
-            
-            
-        
-    def _transition(self, mind_state: MindState) -> None:
-        mood = mind_state.mood
-        
-        if mood.current == Mood.HAPPY:
-            mood.current = choice([Mood.CURIOUS,])
-            
-            mood.intensity = 0.5
+        for mood, level in mind_state.mood.levels.items():
+            base_level = MOOD_BASE[mood]
+            new_level = level + (base_level - level) * RETURN_TO_BASE_SPEED  
+            mind_state.mood.levels[mood] = new_level

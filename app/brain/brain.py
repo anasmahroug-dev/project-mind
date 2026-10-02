@@ -3,6 +3,9 @@ from app.state.mind_state import MindState
 from app.events.base_event import Event
 from app.actions.action_manager import ActionManager
 from app.actions.action import Action
+from app.thinking.thought import Thought
+from app.perception.percept import Percept
+from app.state.goal import Goal
 from app.perception.perception import Perception
 from app.brain.state_updater import StateUpdater
 from app.thinking.thinking import Thinking
@@ -35,7 +38,7 @@ class Brain:
         self,
         state: MindState,
         events: list[Event]
-    ) -> tuple[MindState, list[Action]]:
+    ) -> tuple[MindState, list[Percept], list[Thought], Thought | None, Goal | None, Action | None]:
         
         new_state = state.model_copy(deep=True)
         

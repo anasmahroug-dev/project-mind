@@ -20,6 +20,13 @@ ACTION_ENERGY_COSTS = {
     ActionType.DANCE: 5,
     ActionType.PLAY_GAME: 3,
 }
+MOOD_EFFECTS = {
+    ActionType.READ: {Mood.CURIOUS: -0.1, Mood.HAPPY: 0.05},
+    ActionType.TALK_TO_USER: {Mood.CURIOUS: -0.1, Mood.HAPPY: 0.05},
+    ActionType.DANCE: {Mood.HAPPY: 0.05},
+    ActionType.PLAY_GAME: {Mood.HAPPY: 0.05},
+    
+}
 
 INTERRUPTIBLE_ACTIONS = {
     ActionType.SLEEP: True,
@@ -27,6 +34,15 @@ INTERRUPTIBLE_ACTIONS = {
     ActionType.DANCE: True,
     ActionType.PLAY_GAME: True,
     ActionType.TALK_TO_USER: False,
+}
+
+ACTION_DURATIONS = {
+    ActionType.READ: (2, 6),
+    ActionType.DANCE: (2, 5),
+    ActionType.PLAY_GAME: (3, 6),
+    ActionType.EAT: (2, 4),
+    ActionType.SLEEP: (3, 8),
+    ActionType.TALK_TO_USER: (1, 1),
 }
 
 class ActionManager:
@@ -56,11 +72,7 @@ class ActionManager:
             
             self._apply_energy_cost(action, mind_state)
             
-            if action_type == ActionType.READ:
-                self._apply_read_effect(mind_state)
-            
-            elif action_type == ActionType.TALK_TO_USER:
-                self._apply_talk_to_user_effect(mind_state)
+            self._apply_mood_effects(action, mind_state)
             
             return action
         
@@ -74,14 +86,7 @@ class ActionManager:
             
             self._apply_energy_cost(action, mind_state)
             
-            if action_type == ActionType.TALK_TO_USER:
-                self._apply_talk_to_user_effect(mind_state)
-            
-            elif action_type == ActionType.DANCE:
-                self._apply_dance_effect(mind_state)
-            
-            elif action_type == ActionType.PLAY_GAME:
-                self._apply_play_game_effect(mind_state)
+            self._apply_mood_effects(action, mind_state)
             
             return action
         
@@ -167,87 +172,20 @@ class ActionManager:
 
         self._apply_energy_cost(action, mind_state)
 
-        if action.type == ActionType.READ:
-            self._apply_read_effect(mind_state)
-
-        elif action.type == ActionType.TALK_TO_USER:
-            self._apply_talk_to_user_effect(mind_state)
-
-        elif action.type == ActionType.DANCE:
-            self._apply_dance_effect(mind_state)
-
-        elif action.type == ActionType.PLAY_GAME:
-            self._apply_play_game_effect(mind_state)
-
-        elif action.type == ActionType.SLEEP:
+        self._apply_mood_effects(action, mind_state)
+        
+        if action.type == ActionType.SLEEP:
             self._apply_sleep_effect(mind_state)
 
         elif action.type == ActionType.EAT:
             self._apply_eat_effect(mind_state)
             
-              
-    def _apply_read_effect(self, mind_state: MindState) -> None:
-
-        mood = mind_state.mood
-
-        if mood.current != Mood.CURIOUS:
-            return
-
-        base_decay = 1
-
-        personality_factor = 1.0 - mind_state.personality.curiosity
-
-        decay = base_decay * personality_factor
-
-        mood.intensity = max(
-            0.0,
-            mood.intensity - decay,
-        )
-
-        if mood.intensity == 0.0:
-            mood.current = Mood.HAPPY
-            mood.intensity = 0.5
-    
-    def _apply_talk_to_user_effect(
-    self,
-    mind_state: MindState,
-    ) -> None:
-
-        if mind_state.mood.current == Mood.CURIOUS:
-
-            decay = 0.1
-
-            mind_state.mood.intensity = max(
-                0.0,
-                mind_state.mood.intensity - decay,
-            )
+    def _apply_mood_effects(self, action: Action, mind_state: MindState) -> None:
+        mood_effects = MOOD_EFFECTS.get(action.type, {})
+        for mood, delta in mood_effects.items():
+            mind_state.mood.shift(mood, delta)
             
-    def _apply_dance_effect(
-        self,
-        mind_state: MindState,
-    ) -> None:
-        
-        if mind_state.mood.current == Mood.HAPPY:
-            increase = 0.05
-
-            mind_state.mood.intensity = min(
-                1.0,
-                mind_state.mood.intensity + increase,
-            )
-            
-    def _apply_play_game_effect(
-        self,
-        mind_state: MindState,
-    ) -> None:
-        
-        if mind_state.mood.current == Mood.HAPPY:
-            increase = 0.05
-
-            mind_state.mood.intensity = min(
-                1.0,
-                mind_state.mood.intensity + increase,
-            )
-
+                            
     def _apply_energy_cost(
     self,
     action: Action,

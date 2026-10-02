@@ -9,11 +9,12 @@ class MoodPerceptor(BasePerceptor):
         mind_state,
         events,
     ) -> list[Percept]:
-
-        return [
-            Percept(
-                type=PerceptType(mind_state.mood.current.value),
-                intensity=mind_state.mood.intensity,
-                source=PerceptSource.MOOD,
+        percepts = []
+        
+        for mood, level in mind_state.mood.levels.items():
+            percepts.append(
+                Percept(type=PerceptType(mood.value),
+                        intensity=level,
+                        source=PerceptSource.MOOD)
             )
-        ]
+        return percepts
