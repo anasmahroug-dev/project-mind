@@ -21,10 +21,10 @@ ACTION_ENERGY_COSTS = {
     ActionType.PLAY_GAME: 3,
 }
 MOOD_EFFECTS = {
-    ActionType.READ: {Mood.CURIOUS: -0.1, Mood.HAPPY: 0.05},
-    ActionType.TALK_TO_USER: {Mood.CURIOUS: -0.1, Mood.HAPPY: 0.05},
-    ActionType.DANCE: {Mood.HAPPY: 0.05},
-    ActionType.PLAY_GAME: {Mood.HAPPY: 0.05},
+    ActionType.READ: {Mood.CURIOUS: -0.01,},
+    ActionType.TALK_TO_USER: {Mood.CURIOUS: -0.015},
+    ActionType.DANCE: {Mood.HAPPY: 0.01},
+    ActionType.PLAY_GAME: {Mood.HAPPY: 0.01},
     
 }
 
