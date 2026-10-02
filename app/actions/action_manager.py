@@ -6,44 +6,13 @@ from app.events.base_event import Event
 from app.events.event_types import EventType
 from app.state.goal import Goal, GoalType
 from app.state.mind_state import MindState
-from app.state.mood import Mood
 
+from app.actions.specs import ACTION_SPECS
 
 WEAK_LOW_ENERGY_THRESHOLD = 40.0
 LOW_ENERGY_THRESHOLD = 30.0
 MODERATE_ENERGY_THRESHOLD = 20.0
 CRITICAL_ENERGY_THRESHOLD = 10.0
-
-ACTION_ENERGY_COSTS = {
-    ActionType.READ: 2.0,
-    ActionType.TALK_TO_USER: 0.5,
-    ActionType.DANCE: 5,
-    ActionType.PLAY_GAME: 3,
-}
-MOOD_EFFECTS = {
-    ActionType.READ: {Mood.CURIOUS: -0.02,},
-    ActionType.TALK_TO_USER: {Mood.CURIOUS: -0.03},
-    ActionType.DANCE: {Mood.HAPPY: 0.01},
-    ActionType.PLAY_GAME: {Mood.HAPPY: 0.01},
-    
-}
-
-INTERRUPTIBLE_ACTIONS = {
-    ActionType.SLEEP: True,
-    ActionType.READ: True,
-    ActionType.DANCE: True,
-    ActionType.PLAY_GAME: True,
-    ActionType.TALK_TO_USER: False,
-}
-
-ACTION_DURATIONS = {
-    ActionType.READ: (2, 6),
-    ActionType.DANCE: (2, 5),
-    ActionType.PLAY_GAME: (3, 6),
-    ActionType.EAT: (2, 4),
-    ActionType.SLEEP: (3, 8),
-    ActionType.TALK_TO_USER: (1, 1),
-}
 
 class ActionManager:
 
@@ -56,7 +25,6 @@ class ActionManager:
         if self._should_override_for_energy(mind_state):
             return self._create_energy_action(mind_state)
         
-        
         if goal is None:
             return None
 
@@ -67,32 +35,23 @@ class ActionManager:
                 ActionType.TALK_TO_USER,
             ])
 
-            action = self._create_action(action_type)
+            return self._create_action(action_type)
             
-            self._apply_energy_cost(action, mind_state)
-            
-            self._apply_mood_effects(action, mind_state)
-            
-            return action
+
         
         elif goal.type == GoalType.SEEK_ENJOYMENT:
             
             action_type = random.choice([ActionType.TALK_TO_USER, 
                                          ActionType.DANCE, 
                                          ActionType.PLAY_GAME])
-            action = self._create_action(action_type)
             
-            self._apply_energy_cost(action, mind_state)
-            
-            self._apply_mood_effects(action, mind_state)
-            
-            return action
+            return self._create_action(action_type)
         
         return None
     
     
     def is_interruptible(self, action: Action) -> bool:
-        return INTERRUPTIBLE_ACTIONS.get(action.type, True)
+        return ACTION_SPECS[action.type].interruptible
     
     def interrupt_current_action(self, mind_state: MindState) -> None:
         mind_state.current_action = None
@@ -155,49 +114,14 @@ class ActionManager:
                 ActionType.TALK_TO_USER,
             ])
         
-        if action_type == ActionType.SLEEP:
-            return self._create_action(ActionType.SLEEP)
-        action = self._create_action(action_type)
-        self._apply_action_effect(action, mind_state)       
-
-        return action
-        
-    def _apply_action_effect(
-        self,
-        action: Action,
-        mind_state: MindState,
-        ) -> None:
-
-        self._apply_energy_cost(action, mind_state)
-
-        self._apply_mood_effects(action, mind_state)
-        
-        if action.type == ActionType.EAT:
-            self._apply_eat_effect(mind_state)
-            
-    def _apply_mood_effects(self, action: Action, mind_state: MindState) -> None:
-        mood_effects = MOOD_EFFECTS.get(action.type, {})
-        for mood, delta in mood_effects.items():
-            mind_state.mood.shift(mood, delta)
-            
-                            
-    def _apply_energy_cost(
-    self,
-    action: Action,
-    mind_state: MindState,
-    ) -> None:
-
-        cost = ACTION_ENERGY_COSTS.get(action.type, 0.0)
-
-        mind_state.energy.level = max(
-            0.0,
-            mind_state.energy.level - cost,
-        )
+        return self._create_action(action_type)
+    
+    def _change_energy(self,mind_state: MindState, delta: float) -> None:
+        mind_state.energy.level = max(0.0, min(100.0, mind_state.energy.level + delta))
     
 
-    
     def _create_action(self, action_type: ActionType) -> Action:
-        low, high = ACTION_DURATIONS[action_type]
+        low, high = ACTION_SPECS[action_type].duration
         duration = random.randint(low, high)
         return Action(type=action_type, duration=duration, remaining_ticks=duration)
         
@@ -205,32 +129,15 @@ class ActionManager:
                                mind_state: MindState,
                                ) -> Action:
         action = mind_state.current_action
-        if action.type == ActionType.SLEEP:
-            self._apply_sleep_tick(mind_state)
-            
+        
+        self._change_energy(mind_state, ACTION_SPECS[action.type].energy_per_tick)    
+                
+        for mood, delta in ACTION_SPECS[action.type].mood_per_tick.items():
+                    mind_state.mood.shift(mood, delta)
+        
         action.remaining_ticks -= 1
         if action.is_finished:
             mind_state.current_action = None
-        
+
         return action
     
-    def _apply_sleep_tick(
-        self, mind_state: MindState, 
-    ) -> None:
-        recovery = 5.0
-        
-        mind_state.energy.level = min(100.0,                                      
-                                     mind_state.energy.level + recovery
-                                     )
-        
-    def _apply_eat_effect(
-        self,
-        mind_state: MindState,
-        ) -> None:
-
-        recovery = 10.0
-
-        mind_state.energy.level = min(
-            100.0,
-            mind_state.energy.level + recovery,
-        )
