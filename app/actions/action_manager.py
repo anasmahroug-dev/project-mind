@@ -21,8 +21,8 @@ ACTION_ENERGY_COSTS = {
     ActionType.PLAY_GAME: 3,
 }
 MOOD_EFFECTS = {
-    ActionType.READ: {Mood.CURIOUS: -0.01,},
-    ActionType.TALK_TO_USER: {Mood.CURIOUS: -0.015},
+    ActionType.READ: {Mood.CURIOUS: -0.02,},
+    ActionType.TALK_TO_USER: {Mood.CURIOUS: -0.03},
     ActionType.DANCE: {Mood.HAPPY: 0.01},
     ActionType.PLAY_GAME: {Mood.HAPPY: 0.01},
     
@@ -67,8 +67,7 @@ class ActionManager:
                 ActionType.TALK_TO_USER,
             ])
 
-            action = Action(
-                type=action_type)
+            action = self._create_action(action_type)
             
             self._apply_energy_cost(action, mind_state)
             
@@ -81,8 +80,7 @@ class ActionManager:
             action_type = random.choice([ActionType.TALK_TO_USER, 
                                          ActionType.DANCE, 
                                          ActionType.PLAY_GAME])
-            action = Action(
-                type=action_type)
+            action = self._create_action(action_type)
             
             self._apply_energy_cost(action, mind_state)
             
@@ -158,8 +156,8 @@ class ActionManager:
             ])
         
         if action_type == ActionType.SLEEP:
-            return self._create_sleep_action(mind_state)
-        action = Action(type=action_type)
+            return self._create_action(ActionType.SLEEP)
+        action = self._create_action(action_type)
         self._apply_action_effect(action, mind_state)       
 
         return action
@@ -174,10 +172,7 @@ class ActionManager:
 
         self._apply_mood_effects(action, mind_state)
         
-        if action.type == ActionType.SLEEP:
-            self._apply_sleep_effect(mind_state)
-
-        elif action.type == ActionType.EAT:
+        if action.type == ActionType.EAT:
             self._apply_eat_effect(mind_state)
             
     def _apply_mood_effects(self, action: Action, mind_state: MindState) -> None:
@@ -199,24 +194,13 @@ class ActionManager:
             mind_state.energy.level - cost,
         )
     
-    def _apply_sleep_effect(
-        self,
-        mind_state: MindState,
-    ) -> None:
-        
-        recovery = 20.0
-        
-        mind_state.energy.level = min(
-            100.0,
-            mind_state.energy.level + recovery,
-        )
-        
-    def _create_sleep_action(self, mind_state: MindState) -> Action:
-        
-        duration = random.randint(3, 8)
-        
-        return Action(type=ActionType.SLEEP, duration=duration, remaining_ticks=duration)
+
     
+    def _create_action(self, action_type: ActionType) -> Action:
+        low, high = ACTION_DURATIONS[action_type]
+        duration = random.randint(low, high)
+        return Action(type=action_type, duration=duration, remaining_ticks=duration)
+        
     def process_current_action(self,
                                mind_state: MindState,
                                ) -> Action:

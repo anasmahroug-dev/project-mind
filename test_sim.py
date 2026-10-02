@@ -2,6 +2,10 @@ import collections
 from app.brain.brain import Brain
 from app.defaults.initial_state import create_initial_mind_state
 
+import random
+
+random.seed(42)
+
 brain = Brain()
 state = create_initial_mind_state()
 dominant = collections.Counter()
