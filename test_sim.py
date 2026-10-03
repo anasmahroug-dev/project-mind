@@ -1,7 +1,6 @@
 import collections
 from app.brain.brain import Brain
 from app.defaults.initial_state import create_initial_mind_state
-
 import random
 
 random.seed(42)
@@ -35,3 +34,8 @@ for tick in range(3000):
 
 changes = sum(1 for a, b in zip(goals, goals[1:]) if a != b)
 print(len(goals), "actions,", changes, "changements de goal")
+energies = []
+for tick in range(3000):
+    state, percepts, thoughts, focus, goal, action = brain.step(state, [])
+    energies.append(state.energy.level)
+print("énergie min", round(min(energies)), "moyenne", round(sum(energies) / len(energies)))

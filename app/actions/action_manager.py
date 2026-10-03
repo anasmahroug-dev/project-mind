@@ -9,11 +9,6 @@ from app.state.mind_state import MindState
 
 from app.actions.specs import ACTION_SPECS
 
-WEAK_LOW_ENERGY_THRESHOLD = 40.0
-LOW_ENERGY_THRESHOLD = 30.0
-MODERATE_ENERGY_THRESHOLD = 20.0
-CRITICAL_ENERGY_THRESHOLD = 10.0
-
 class ActionManager:
 
     def process(
@@ -21,12 +16,15 @@ class ActionManager:
         goal: Goal | None,
         mind_state: MindState,
     ) -> Action | None:
-
-        if self._should_override_for_energy(mind_state):
-            return self._create_energy_action(mind_state)
-        
+     
         if goal is None:
             return None
+        
+        if goal.type == GoalType.RESTORE_ENERGY:
+            action_type = random.choice([
+                ActionType.SLEEP,
+                ActionType.EAT,])
+            return self._create_action(action_type)
 
         if goal.type == GoalType.ACQUIRE_KNOWLEDGE:
 
@@ -70,52 +68,6 @@ class ActionManager:
             for event in events
         )
         
-    
-    def _should_override_for_energy(
-        self,
-        mind_state: MindState,
-    ) -> bool:
-        energy = mind_state.energy.level
-        
-        if energy <= CRITICAL_ENERGY_THRESHOLD:
-            return True
-        
-        if energy <= MODERATE_ENERGY_THRESHOLD:
-            return random.random() < 0.8
-        
-        if energy <= LOW_ENERGY_THRESHOLD:
-            return random.random() < 0.5
-        if energy <= WEAK_LOW_ENERGY_THRESHOLD:
-            return random.random() < 0.2
-        
-        return False
-    
-    def _create_energy_action(
-        self,
-        mind_state: MindState,
-    ) -> Action:
-        energy = mind_state.energy.level
-        
-        if energy <= CRITICAL_ENERGY_THRESHOLD:
-            action_type = ActionType.SLEEP
-            
-        elif energy <= MODERATE_ENERGY_THRESHOLD:
-            action_type = random.choice([
-             ActionType.SLEEP,
-             ActionType.SLEEP,
-             ActionType.EAT,
-             ActionType.TALK_TO_USER,   
-            ])
-            
-        else:
-            action_type = random.choice([
-                ActionType.SLEEP,
-                ActionType.EAT,
-                ActionType.TALK_TO_USER,
-            ])
-        
-        return self._create_action(action_type)
-    
     def _change_energy(self,mind_state: MindState, delta: float) -> None:
         mind_state.energy.level = max(0.0, min(100.0, mind_state.energy.level + delta))
     

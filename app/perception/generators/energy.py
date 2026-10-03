@@ -2,6 +2,7 @@ from app.perception.percept import Percept
 from app.perception.types import PerceptSource, PerceptType
 from app.perception.generators.base_perceptor import BasePerceptor
 
+LOW_ENERGY_THRESHOLD = 40.0
 
 class EnergyPerceptor(BasePerceptor):
 
@@ -15,12 +16,12 @@ class EnergyPerceptor(BasePerceptor):
 
         energy = mind_state.energy.level
 
-        if energy <= 20:
+        if energy <= LOW_ENERGY_THRESHOLD:
 
             percepts.append(
                 Percept(
                     type=PerceptType.LOW_ENERGY,
-                    intensity=1 - energy / 20,
+                    intensity=1 - energy / LOW_ENERGY_THRESHOLD,
                     source=PerceptSource.ENERGY,
                 )
             )
