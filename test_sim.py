@@ -2,6 +2,7 @@ import collections
 from app.brain.brain import Brain
 from app.defaults.initial_state import create_initial_mind_state
 import random
+from app.state.mood import Mood
 
 random.seed(42)
 
@@ -38,4 +39,14 @@ energies = []
 for tick in range(3000):
     state, percepts, thoughts, focus, goal, action = brain.step(state, [])
     energies.append(state.energy.level)
+    
+    
 print("énergie min", round(min(energies)), "moyenne", round(sum(energies) / len(energies)))
+
+for tick in range(200):
+    state, percepts, thoughts, focus, goal, action = brain.step(state, [])
+    if 40 <= tick < 80 and state.mood.dominant == Mood.BORED:
+        print(tick,
+              "pensée :", focus.type.value if focus else None,
+              "| goal :", goal.type.value if goal else None,
+              "| action :", action.type.value if action else None)

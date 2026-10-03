@@ -6,12 +6,23 @@ from app.events.base_event import Event
 from app.events.event_types import EventType
 from app.state.goal import Goal, GoalType
 from app.state.mind_state import MindState
+from app.state.mood import Mood
+
 
 from app.actions.specs import ACTION_SPECS
 
-class ActionManager:
+REPETITION_BOREDOM = 0.05
+NOVELTY_RELIEF = 0.02
 
-    def process(
+class ActionManager:
+    def process(self, goal, mind_state):
+        action = self._choose_action(goal, mind_state)
+        if action is not None:
+            self._register_action(action, mind_state)
+        return action
+    
+    
+    def _choose_action(
         self,
         goal: Goal | None,
         mind_state: MindState,
@@ -26,7 +37,7 @@ class ActionManager:
                 ActionType.EAT,])
             return self._create_action(action_type)
 
-        if goal.type == GoalType.ACQUIRE_KNOWLEDGE:
+        elif goal.type == GoalType.ACQUIRE_KNOWLEDGE:
 
             action_type = random.choice([
                 ActionType.READ,
@@ -35,8 +46,6 @@ class ActionManager:
 
             return self._create_action(action_type)
             
-
-        
         elif goal.type == GoalType.SEEK_ENJOYMENT:
             
             action_type = random.choice([ActionType.TALK_TO_USER, 
@@ -45,8 +54,24 @@ class ActionManager:
             
             return self._create_action(action_type)
         
+        elif goal.type == GoalType.GET_ENTERTAINED:
+            actions = [ActionType.DANCE, ActionType.PLAY_GAME, ActionType.READ,]
+            actions.remove(mind_state.last_action_type) if mind_state.last_action_type in actions else None
+            action_type = random.choice(actions)    
+            return self._create_action(action_type)
+        
         return None
-    
+    def _register_action(self, action: Action, mind_state: MindState) -> None:
+                
+        if mind_state.last_action_type is not None:
+            if action.type == mind_state.last_action_type:
+                mind_state.mood.shift(Mood.BORED, REPETITION_BOREDOM)
+            
+            else:
+                mind_state.mood.shift(Mood.BORED, -NOVELTY_RELIEF)
+        
+        mind_state.last_action_type = action.type
+        
     
     def is_interruptible(self, action: Action) -> bool:
         return ACTION_SPECS[action.type].interruptible

@@ -26,19 +26,21 @@ ACTION_SPECS = {
     ActionType.DANCE: ActionSpec(
         duration=(2, 5),
         energy_per_tick=-1.5,
-        mood_per_tick={Mood.HAPPY: 0.003},
+        mood_per_tick={Mood.HAPPY: 0.003,
+                       Mood.BORED: -0.004},
     ),
     ActionType.PLAY_GAME: ActionSpec(
         duration=(3, 6),
         energy_per_tick=-0.7,
-        mood_per_tick={Mood.HAPPY: 0.002},
+        mood_per_tick={Mood.HAPPY: 0.002,
+                       Mood.BORED: -0.004},
     ),
     ActionType.EAT: ActionSpec(
         duration=(2, 4),
         energy_per_tick=3.0,
     ),
     ActionType.SLEEP: ActionSpec(
-        duration=(3, 8),
+        duration=(6, 14),
         energy_per_tick=5.0,
     ),
 }

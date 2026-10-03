@@ -5,6 +5,7 @@ from app.state.energy import EnergyState
 from app.state.personality import PersonalityState
 from app.state.working_memory import WorkingMemory
 from app.state.goal import Goal
+from app.actions.types import ActionType
 
 class MindState(BaseModel):
     age: int = 0
@@ -14,3 +15,4 @@ class MindState(BaseModel):
     working_memory: WorkingMemory
     current_goal: Goal | None = None
     current_action: Action | None = None
+    last_action_type: ActionType | None = None

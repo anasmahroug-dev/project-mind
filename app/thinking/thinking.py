@@ -1,5 +1,6 @@
 from app.perception.percept import Percept
 from app.state.mind_state import MindState
+from app.thinking.generators.boredom import BoredomThinker
 from app.thinking.generators.curiosity import CuriosityThinker
 from app.thinking.generators.happiness import HappinessThinker
 from app.thinking.generators.energy import EnergyThinker
@@ -12,6 +13,7 @@ class Thinking:
             CuriosityThinker(),
             HappinessThinker(),
             EnergyThinker(),
+            BoredomThinker(),
         ]
         
     def process(

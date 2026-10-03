@@ -1,3 +1,4 @@
+from app.goal_manager.mappers.boredom import BoredomGoalMapper
 from app.state.goal import Goal
 from app.state.mind_state import MindState
 from app.thinking.thought import Thought
@@ -15,6 +16,7 @@ class GoalManager:
             CuriosityGoalMapper(),
             HappinessGoalMapper(),
             EnergyGoalMapper(),
+            BoredomGoalMapper(),
         ]
 
     def process(
