@@ -1,4 +1,4 @@
-
+from app.personality.modulation import mood_drift
 from app.state.mind_state import MindState
 from app.state.mood import Mood
 
@@ -12,16 +12,13 @@ MOOD_BASE = {
     Mood.BORED: 0.4,
 }
 
-MOOD_DRIFT = {
-    Mood.BORED: 0.003
-}
 
 RETURN_TO_BASE_SPEED = 0.05
 
 class MoodManager:
 
     def process(self, mind_state: MindState) -> None:
-        for mood, drift in MOOD_DRIFT.items():
+        for mood, drift in mood_drift(mind_state.personality).items():
             mind_state.mood.shift(mood, drift)
             
         for mood, level in mind_state.mood.levels.items():

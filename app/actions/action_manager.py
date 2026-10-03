@@ -1,9 +1,11 @@
 import random
-
+from app.personality.modulation import action_weights, mood_effect_gain, repetition_boredom
 from app.actions.action import Action
 from app.actions.types import ActionType
 from app.events.base_event import Event
 from app.events.event_types import EventType
+from app.state import mind_state
+from app.state import goal
 from app.state.goal import Goal, GoalType
 from app.state.mind_state import MindState
 from app.state.mood import Mood
@@ -11,7 +13,6 @@ from app.state.mood import Mood
 
 from app.actions.specs import ACTION_SPECS
 
-REPETITION_BOREDOM = 0.05
 NOVELTY_RELIEF = 0.02
 
 class ActionManager:
@@ -37,27 +38,15 @@ class ActionManager:
                 ActionType.EAT,])
             return self._create_action(action_type)
 
-        elif goal.type == GoalType.ACQUIRE_KNOWLEDGE:
-
-            action_type = random.choice([
-                ActionType.READ,
-                ActionType.TALK_TO_USER,
-            ])
-
-            return self._create_action(action_type)
-            
-        elif goal.type == GoalType.SEEK_ENJOYMENT:
-            
-            action_type = random.choice([ActionType.TALK_TO_USER, 
-                                         ActionType.DANCE, 
-                                         ActionType.PLAY_GAME])
-            
-            return self._create_action(action_type)
-        
-        elif goal.type == GoalType.GET_ENTERTAINED:
-            actions = [ActionType.DANCE, ActionType.PLAY_GAME, ActionType.READ,]
-            actions.remove(mind_state.last_action_type) if mind_state.last_action_type in actions else None
-            action_type = random.choice(actions)    
+        elif goal.type in (
+            GoalType.ACQUIRE_KNOWLEDGE,
+            GoalType.SEEK_ENJOYMENT,
+            GoalType.GET_ENTERTAINED,
+        ):
+            weights = action_weights(mind_state.personality, goal.type)
+            if goal.type == GoalType.GET_ENTERTAINED:
+                weights.pop(mind_state.last_action_type, None)
+            action_type = random.choices(list(weights), weights=list(weights.values()))[0]
             return self._create_action(action_type)
         
         return None
@@ -65,7 +54,7 @@ class ActionManager:
                 
         if mind_state.last_action_type is not None:
             if action.type == mind_state.last_action_type:
-                mind_state.mood.shift(Mood.BORED, REPETITION_BOREDOM)
+                mind_state.mood.shift(Mood.BORED, repetition_boredom(mind_state.personality))
             
             else:
                 mind_state.mood.shift(Mood.BORED, -NOVELTY_RELIEF)
@@ -110,7 +99,7 @@ class ActionManager:
         self._change_energy(mind_state, ACTION_SPECS[action.type].energy_per_tick)    
                 
         for mood, delta in ACTION_SPECS[action.type].mood_per_tick.items():
-                    mind_state.mood.shift(mood, delta)
+                    mind_state.mood.shift(mood, delta * mood_effect_gain(mind_state.personality, mood))
         
         action.remaining_ticks -= 1
         if action.is_finished:

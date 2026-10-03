@@ -4,6 +4,7 @@ from app.events.base_event import Event
 from app.events.event_types import EventType
 from app.defaults.initial_state import create_initial_mind_state
 import time
+import queue
 
 class Engine:
 
@@ -13,11 +14,24 @@ class Engine:
 
         self.state = create_initial_mind_state()
 
-        self.event_queue = []
+        self.inbox: queue.Queue[Event] = queue.Queue()
 
         self.tick_count = 0
 
         self.running = False
+        
+        self.verbose : bool = False
+    
+    def submit(self, event: Event) -> None:
+        self.inbox.put(event)
+        
+    def _drain_inbox(self) -> list[Event]:
+        events = []
+        while True:
+            try:
+                events.append(self.inbox.get_nowait())
+            except queue.Empty:
+                return events
         
     def run(self):
 
@@ -27,51 +41,63 @@ class Engine:
 
             self.step()
 
-            time.sleep(0.25)
+            time.sleep(1)
             
     def step(self):
 
-        events = self.event_queue
-        self.event_queue = []
+        events = self._drain_inbox()
 
         new_state, percepts, thoughts, focused_thought, goal, action = self.brain.step(self.state,
         events)
 
         self.state = new_state
-        print(f"\n========== Tick {self.tick_count} ==========")
+        if self.verbose:
+            print(f"\n========== Tick {self.tick_count} ==========")
 
-        for percept in percepts:
-            print(
-            f"[PERCEPT] {percept.type.value} "
-            f"({percept.intensity:.2f}) "
-             f"from {percept.source.value}"
-        )
-
-        for thought in thoughts:
-            print(
-        f"[THOUGHT] {thought.type.value} "
-        f"({thought.priority:.2f})"
-        )
-
-        if focused_thought is not None:
-            print(
-            f"[FOCUS] {focused_thought.type.value} "
-            f"({focused_thought.priority:.2f})"
+            for percept in percepts:
+                print(
+                f"[PERCEPT] {percept.type.value} "
+                f"({percept.intensity:.2f}) "
+                f"from {percept.source.value}"
             )
+
+            for thought in thoughts:
+                print(
+            f"[THOUGHT] {thought.type.value} "
+            f"({thought.priority:.2f})"
+            )
+
+            if focused_thought is not None:
+                print(
+                f"[FOCUS] {focused_thought.type.value} "
+                f"({focused_thought.priority:.2f})"
+                )
+                
+            if goal is not None:
+                print(
+                f"[GOAL] {goal.type.value}"
+                )
             
-        if goal is not None:
+            if action is not None:
+                print(
+            f"[ACTION] {action.type.value} "
+            f"(duration={action.duration}, remaining={action.remaining_ticks})"
+        )
             print(
-            f"[GOAL] {goal.type.value}"
-            )
-        
-        if action is not None:
-            print(
-        f"[ACTION] {action.type.value} "
-        f"(duration={action.duration}, remaining={action.remaining_ticks})"
-    )
-        print(
-        f"Age: {self.state.age} | "
-        f"Energy: {self.state.energy.level:.2f} | "
-        f"Mood: {self.state.mood.dominant.value} ({max(self.state.mood.levels.values()):.2f})"
-        )  
-        self.tick_count += 1
+            f"Age: {self.state.age} | "
+            f"Energy: {self.state.energy.level:.2f} | "
+            f"Mood: {self.state.mood.dominant.value} ({max(self.state.mood.levels.values()):.2f})"
+            )  
+            self.tick_count += 1
+        else:
+            if events:
+                for event in events:
+                    print(
+                    f"[EVENT] {event.type.value} "
+                    f"({event.content})"
+                    )
+            if action is not None and action.remaining_ticks == action.duration:
+                print(
+                f"[ACTION] {action.type.value} "
+                f"(duration={action.duration}, remaining={action.remaining_ticks})"
+                )
