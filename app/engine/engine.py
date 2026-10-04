@@ -20,7 +20,7 @@ class Engine:
 
         self.running = False
         
-        self.verbose : bool = False
+        self.verbose : bool = True
     
     def submit(self, event: Event) -> None:
         self.inbox.put(event)
@@ -53,7 +53,17 @@ class Engine:
         self.state = new_state
         if self.verbose:
             print(f"\n========== Tick {self.tick_count} ==========")
-
+            if events:
+                for event in events:
+                    print(
+                        f"[EVENT] {event.type.value} "
+                        f"({event.content})"
+                        )
+                    if event.tone is not None:
+                        print(
+                            f"Tone: {event.tone.valence:.2f}, {event.tone.directed}"
+                        )
+            
             for percept in percepts:
                 print(
                 f"[PERCEPT] {percept.type.value} "
