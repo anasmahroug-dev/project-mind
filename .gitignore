@@ -41,3 +41,5 @@ frontend/.next/
 
 # Misc
 *.swp
+
+app/tests/
