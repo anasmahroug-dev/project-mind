@@ -12,6 +12,7 @@ from app.thinking.thinking import Thinking
 from app.brain.decision import Decision
 from app.attention.attention import Attention
 from app.mood.mood_manager import MoodManager
+from app.brain.appraisal import Appraisal
 
 
 
@@ -34,6 +35,8 @@ class Brain:
         
         self.mood_manager = MoodManager()
         
+        self.appraisal = Appraisal()
+        
     def step(
         self,
         state: MindState,
@@ -45,6 +48,7 @@ class Brain:
         
         self.state_updater.process(new_state)
         self.mood_manager.process(new_state)
+        self.appraisal.process(new_state, events)
         
         percepts = self.perception.process(new_state, events) 
         thoughts = self.thinking.process(new_state, percepts)
@@ -57,7 +61,8 @@ class Brain:
             
             if self.action_manager.should_interrupt(
                 new_state.current_action,
-                events,):
+                events,
+                new_state):
                 self.action_manager.interrupt_current_action(new_state)
                 
             else:

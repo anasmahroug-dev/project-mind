@@ -96,7 +96,8 @@ class Engine:
             print(
             f"Age: {self.state.age} | "
             f"Energy: {self.state.energy.level:.2f} | "
-            f"Mood: {self.state.mood.dominant.value} ({max(self.state.mood.levels.values()):.2f})"
+            f"Mood: {self.state.mood.dominant.value} ({max(self.state.mood.levels.values()):.2f}) | "
+            f"User Relationship: {self.state.relationship.affinity}"
             )  
             self.tick_count += 1
         else:

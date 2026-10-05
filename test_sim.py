@@ -5,6 +5,9 @@ from app.brain.brain import Brain
 from app.defaults.initial_state import create_initial_mind_state
 from app.personality.presets import PERSONALITY_PRESETS
 from app.state.mood import Mood
+from app.events.base_event import Event, EventType
+from app.events.tone import Tone
+from app.actions.types import ActionType
 
 
 def simulate(preset: str = "neutre", ticks: int = 3000, seed: int = 42) -> dict:
@@ -77,3 +80,13 @@ for name in PERSONALITY_PRESETS:
         print_report(name, simulate(name))
         
 compare()
+brain = Brain()
+state = create_initial_mind_state("neutre")
+for tick in range(60):
+    
+    state, percepts, thoughts, focus, goal, action = brain.step(state, [])
+    print(tick, round(state.relationship.contact_need, 2),
+          focus.type.value if focus else None,
+          goal.type.value if goal else None,
+          action.type.value if action else None)
+    

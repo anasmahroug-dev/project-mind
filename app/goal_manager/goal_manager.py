@@ -6,6 +6,7 @@ from app.thinking.thought import Thought
 from app.goal_manager.mappers.energy import EnergyGoalMapper
 from app.goal_manager.mappers.curiosity import CuriosityGoalMapper
 from app.goal_manager.mappers.happiness import HappinessGoalMapper
+from app.goal_manager.mappers.social import SocialGoalMapper
 
 
 class GoalManager:
@@ -17,6 +18,7 @@ class GoalManager:
             HappinessGoalMapper(),
             EnergyGoalMapper(),
             BoredomGoalMapper(),
+            SocialGoalMapper(),
         ]
 
     def process(

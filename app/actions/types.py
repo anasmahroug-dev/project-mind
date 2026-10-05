@@ -8,3 +8,4 @@ class ActionType(Enum):
     PLAY_GAME = "play_game"
     SLEEP = "sleep"
     EAT = "eat"
+    REFLECT = "reflect"

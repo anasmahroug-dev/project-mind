@@ -1,0 +1,20 @@
+from app.brain.brain import Brain
+from app.defaults.initial_state import create_initial_mind_state
+from app.events.base_event import Event
+from app.events.event_types import EventType
+from app.perception.ear import VaderToneAnalyzer
+
+ear = VaderToneAnalyzer()
+MESSAGES = {50: "You are amazing!", 120: "SHUT UP!!!"}
+
+brain = Brain()
+state = create_initial_mind_state("neutre")
+for tick in range(200):
+    events = []
+    if tick in MESSAGES:
+        text = MESSAGES[tick]
+        events.append(Event(type=EventType.USER_MESSAGE, content=text, tone=ear.analyze(text)))
+    state, *_ = brain.step(state, events)
+    if tick % 5 == 0 or tick in MESSAGES:
+        levels = {m.value: round(v, 2) for m, v in state.mood.levels.items()}
+        print(tick, levels, "affinité", round(state.relationship.affinity, 2))

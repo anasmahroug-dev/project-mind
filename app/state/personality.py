@@ -6,3 +6,5 @@ class PersonalityState(BaseModel):
     humor: float = Field(default=0.5, ge=0.0, le=1.0)
     patience: float = Field(default=0.5, ge=0.0, le=1.0)
     confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+    dominance: float = Field(default=0.5, ge=0.0, le=1.0)
+    sociability: float = Field(default=0.5, ge=0.0, le=1.0)

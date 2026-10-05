@@ -12,7 +12,7 @@ class PerceptType(str, Enum):
     BORED = "bored"
 
     USER_MESSAGE = "user_message"
-
+    
     HAS_GOAL = "has_goal"
     NO_GOAL = "no_goal"
 
@@ -20,6 +20,7 @@ class PerceptType(str, Enum):
 
     TIME_PASSED = "time_passed"
     
+    WANTS_CONTACT = "wants_contact"
     
 class PerceptSource(str, Enum):
     ENERGY = "energy"

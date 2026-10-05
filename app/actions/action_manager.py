@@ -1,5 +1,5 @@
 import random
-from app.personality.modulation import action_weights, mood_effect_gain, repetition_boredom
+from app.personality.modulation import action_weights, mood_effect_gain, repetition_boredom, reply_urge
 from app.actions.action import Action
 from app.actions.types import ActionType
 from app.events.base_event import Event
@@ -9,6 +9,7 @@ from app.state import goal
 from app.state.goal import Goal, GoalType
 from app.state.mind_state import MindState
 from app.state.mood import Mood
+
 
 
 from app.actions.specs import ACTION_SPECS
@@ -49,6 +50,9 @@ class ActionManager:
             action_type = random.choices(list(weights), weights=list(weights.values()))[0]
             return self._create_action(action_type)
         
+        elif goal.type == GoalType.SEEK_CONTACT:
+            return self._create_action(ActionType.TALK_TO_USER)
+        
         return None
     def _register_action(self, action: Action, mind_state: MindState) -> None:
                 
@@ -61,26 +65,18 @@ class ActionManager:
         
         mind_state.last_action_type = action.type
         
-    
-    def is_interruptible(self, action: Action) -> bool:
-        return ACTION_SPECS[action.type].interruptible
-    
     def interrupt_current_action(self, mind_state: MindState) -> None:
         mind_state.current_action = None
         
     def should_interrupt(self, 
                          action: Action,
-                         events: list[Event],) -> bool:
-        if not self.is_interruptible(action):
+                         events: list[Event],
+                         mind_state: MindState,) -> bool:
+        if not any(event.type == EventType.USER_MESSAGE for event in events):
             return False
-        
-        if not events:
-            return False
-        
-        return any(
-            event.type == EventType.USER_MESSAGE
-            for event in events
-        )
+
+        urge = reply_urge(mind_state.personality, mind_state.relationship)
+        return urge > ACTION_SPECS[action.type].resistance
         
     def _change_energy(self,mind_state: MindState, delta: float) -> None:
         mind_state.energy.level = max(0.0, min(100.0, mind_state.energy.level + delta))
@@ -96,11 +92,17 @@ class ActionManager:
                                ) -> Action:
         action = mind_state.current_action
         
-        self._change_energy(mind_state, ACTION_SPECS[action.type].energy_per_tick)    
+        self._change_energy(mind_state, ACTION_SPECS[action.type].energy_per_tick)  
+        mind_state.relationship.contact_need = max(0.0, min(1.0, mind_state.relationship.contact_need + ACTION_SPECS[action.type].contact_per_tick)) 
+        
+        relationship = mind_state.relationship      
+        relationship.reply_pressure = max(
+            0.0, min(1.0, relationship.reply_pressure + ACTION_SPECS[action.type].reply_per_tick)
+            )
                 
         for mood, delta in ACTION_SPECS[action.type].mood_per_tick.items():
                     mind_state.mood.shift(mood, delta * mood_effect_gain(mind_state.personality, mood))
-        
+                    
         action.remaining_ticks -= 1
         if action.is_finished:
             mind_state.current_action = None

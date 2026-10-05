@@ -6,6 +6,7 @@ class GoalType(Enum):
     SEEK_ENJOYMENT = "seek_enjoyment"
     RESTORE_ENERGY = "restore_energy"
     GET_ENTERTAINED = "get_entertained"
+    SEEK_CONTACT = "seek_contact"
 
 class Goal(BaseModel):
     type: GoalType
