@@ -55,7 +55,8 @@ class ActionManager:
         
         return None
     def _register_action(self, action: Action, mind_state: MindState) -> None:
-                
+        if action.type == ActionType.TALK_TO_USER:  
+            return      
         if mind_state.last_action_type is not None:
             if action.type == mind_state.last_action_type:
                 mind_state.mood.shift(Mood.BORED, repetition_boredom(mind_state.personality))

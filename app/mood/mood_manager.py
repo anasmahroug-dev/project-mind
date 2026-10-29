@@ -18,7 +18,7 @@ RETURN_TO_BASE_SPEED = 0.05
 class MoodManager:
 
     def process(self, mind_state: MindState) -> None:
-        for mood, drift in mood_drift(mind_state.personality).items():
+        for mood, drift in mood_drift(mind_state.personality, mind_state.relationship).items():
             mind_state.mood.shift(mood, drift)
             
         for mood, level in mind_state.mood.levels.items():

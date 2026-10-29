@@ -22,6 +22,10 @@ SOCIABILITY_SPREAD = 1.0       # facteur de 0.5 à 1.5
 
 REPLY_BASE = 0.80
 
+LONELINESS_BOREDOM = 0.004
+LONELINESS_SADNESS = 0.010
+LONELINESS_SADNESS_THRESHOLD = 0.5
+
 
 def trait_weight(trait: float, spread: float = WEIGHT_SPREAD) -> float:
     """1.0 pour un trait à 0.5 ; jamais proche de 0 : aucune action n'est exclue."""
@@ -52,10 +56,19 @@ def action_weights(
         }
     raise ValueError(f"pas de poids d'action pour le goal {goal_type}")
 
-def mood_drift(personality: PersonalityState) -> dict[Mood, float]:
+def mood_drift(personality: PersonalityState, relationship: RelationshipState) -> dict[Mood, float]:
     impatience = 1.0 - personality.patience
+    need = relationship.contact_need
+    
+    lonely_boredom = LONELINESS_BOREDOM * need * trait_weight(personality.sociability)
+    
+    distress = max(0.0, need - LONELINESS_SADNESS_THRESHOLD) / (1.0 - LONELINESS_SADNESS_THRESHOLD)
+    attachment = 0.5 + 0.5 * relationship.affinity 
+    lonely_sadness = LONELINESS_SADNESS * distress * trait_weight(personality.empathy) * attachment
+    
     return {
-        Mood.BORED: BOREDOM_DRIFT_DEFAULT + BOREDOM_DRIFT_SPREAD * (impatience - 0.5),
+        Mood.BORED: BOREDOM_DRIFT_DEFAULT + BOREDOM_DRIFT_SPREAD * (impatience - 0.5) + lonely_boredom,
+        Mood.SAD: lonely_sadness,
     }
 
 
